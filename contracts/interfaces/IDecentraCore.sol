@@ -97,12 +97,38 @@ interface IDecentraCore {
   @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
   */
   function freezeMember(address _member) external;
-  
+
   /**
   @notice calculateVotingPower is used to calculate a members current voting power relative to their D-Score
   @param _member is the address of the member who's voting power is being retreived
   */
   function calculateVotingPower(address _member) external view returns(uint256);
 
+  /**
+  @notice proxyMintDD is a protected function that allows an approved contract to mint DecentraDollar
+  @param _to is the address the DecentraDollar is being minted to
+  @param _amount is the amount being minted
+  */
+  function proxyMintDD(address _to, uint256 _amount) external;
 
+  /**
+  @notice proxyMintDS is a protected function that allows an approved contract to issue DecentraStock
+  @param _to is the address the DecentraStock is being issued to
+  @param _amount is the amount being issued
+  */
+  function proxyMintDS(address _to, uint256 _amount) external;
+
+  /**
+  @notice proxyBurnDD is a protected function that allows an approved contract to burn DecentraDollar
+  @param _from is the address the DecentraDollar is being burned from
+  @param _amount is the amount being burned
+  */
+  function proxyBurnDD(address _from, uint256 _amount) external;
+
+  /**
+  @notice proxyBurnDS is a protected function that allows an approved contract to burn DecentraStock
+  @param _from is the address the DecentraStock is being burned from
+  @param _amount is the amount being burned
+  */
+  function proxyBurnDS(address _from, uint256 _amount) external;
 }
