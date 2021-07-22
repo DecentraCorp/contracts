@@ -9,7 +9,6 @@ import "./interfaces/IDecentraStock.sol";
 import "./interfaces/IDScore.sol";
 import "./interfaces/IDecentraCore.sol";
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 /// @title DecentraCore
 /// @author Christopher Dixon
@@ -133,7 +132,10 @@ contract DecentraCore is Ownable, IDecentraCore {
     @notice the modifier onlyApprovedDelegator requires that the function caller must be a approved delegator
     **/
     modifier onlyApprovedDelegator() {
-        require(delegators[msg.sender], "DecentraCore: Caller is not a delegator");
+        require(
+            delegators[msg.sender],
+            "DecentraCore: Caller is not a delegator"
+        );
         _;
     }
 
@@ -147,8 +149,8 @@ contract DecentraCore is Ownable, IDecentraCore {
         dScore = IDScore(_dScore);
     }
 
+    fallback() external payable {}
     ///fallback function so this contract can receive ETH
-     fallback() external payable {}
 
     /**
     @notice delegateFunctionCall allows the DecentraCore contract to make arbitrary calls to other contracts
@@ -173,8 +175,8 @@ contract DecentraCore is Ownable, IDecentraCore {
     **/
     function transferxDAI(address payable _to, uint256 _amount)
         public
-        onlyOwner
         override
+        onlyOwner
     {
         _to.transfer(_amount);
     }
@@ -191,7 +193,7 @@ contract DecentraCore is Ownable, IDecentraCore {
         uint256 _amount,
         string memory _proposalHash,
         bytes memory _calldata
-    ) public payable onlyMember override returns (uint256) {
+    ) public payable override onlyMember returns (uint256) {
         proposalID++;
         Proposal storage p = proposals[proposalID];
         p.maker = msg.sender;
@@ -211,7 +213,7 @@ contract DecentraCore is Ownable, IDecentraCore {
             the quorum used in voting
     @notice _quorum is the input quarum number being set
     **/
-    function setQuorum(uint256 _quorum) public onlyOwner override {
+    function setQuorum(uint256 _quorum) public override onlyOwner {
         quorum = _quorum;
     }
 
@@ -268,8 +270,8 @@ contract DecentraCore is Ownable, IDecentraCore {
     **/
     function vote(uint256 _ProposalID, bool supportsProposal)
         public
-        onlyMember
         override
+        onlyMember
     {
         Proposal storage p = proposals[_ProposalID];
         require(
@@ -352,8 +354,8 @@ contract DecentraCore is Ownable, IDecentraCore {
     */
     function setApprovedContract(address _contract, uint256 _privledge)
         external
-        onlyOwner
         override
+        onlyOwner
     {
         require(
             _privledge > 0 && _privledge < 4,
@@ -377,7 +379,7 @@ contract DecentraCore is Ownable, IDecentraCore {
     @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
     @dev this function can also be used to un-freeze an account
     */
-    function freezeMember(address _member) external onlyOwner override {
+    function freezeMember(address _member) external override onlyOwner {
         if (frozenAccounts[_member]) {
             frozenAccounts[_member] = false;
         } else {
@@ -391,7 +393,11 @@ contract DecentraCore is Ownable, IDecentraCore {
     @param _to is the address the DecentraDollar is being minted to
     @param _amount is the amount being minted
     */
-    function proxyMintDD(address _to, uint256 _amount) public onlyMint override {
+    function proxyMintDD(address _to, uint256 _amount)
+        public
+        override
+        onlyMint
+    {
         dd.mintDD(_to, _amount);
     }
 
@@ -400,7 +406,11 @@ contract DecentraCore is Ownable, IDecentraCore {
     @param _to is the address the DecentraStock is being issued to
     @param _amount is the amount being issued
     */
-    function proxyMintDS(address _to, uint256 _amount) public onlyMint override {
+    function proxyMintDS(address _to, uint256 _amount)
+        public
+        override
+        onlyMint
+    {
         ds.issueStock(_to, _amount);
     }
 
@@ -409,7 +419,11 @@ contract DecentraCore is Ownable, IDecentraCore {
     @param _from is the address the DecentraDollar is being burned from
     @param _amount is the amount being burned
     */
-    function proxyBurnDD(address _from, uint256 _amount) public onlyBurn override {
+    function proxyBurnDD(address _from, uint256 _amount)
+        public
+        override
+        onlyBurn
+    {
         dd.burnDD(_from, _amount);
     }
 
@@ -418,7 +432,11 @@ contract DecentraCore is Ownable, IDecentraCore {
     @param _from is the address the DecentraStock is being burned from
     @param _amount is the amount being burned
     */
-    function proxyBurnDS(address _from, uint256 _amount) public onlyBurn override {
+    function proxyBurnDS(address _from, uint256 _amount)
+        public
+        override
+        onlyBurn
+    {
         ds.burnStock(_from, _amount);
     }
 }

@@ -8,7 +8,6 @@ import "./interfaces/IDecentraCore.sol";
 import "./interfaces/IDecentraStock.sol";
 import "./interfaces/IDScore.sol";
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 /// @title DScore
 /// @author Christopher Dixon
@@ -40,7 +39,6 @@ contract DScore is Ownable, IDScore {
         _;
     }
 
-
     /**
     @notice DScoreTracker is a struct used to store a Decentracorp members D-Score parameters
     @param level is a members level that is determined by the DecentraCorp community as a way of rewarding members for non
@@ -53,25 +51,24 @@ contract DScore is Ownable, IDScore {
     @param audit is the number of other members this account has audited
     */
     struct DScoreTracker {
-      uint256 level;
-      uint256 jobs;
-      uint256 votes;
-      uint256 reputation;
-      uint256 staked;
-      uint256 verified;
-      uint256 audit;
+        uint256 level;
+        uint256 jobs;
+        uint256 votes;
+        uint256 reputation;
+        uint256 staked;
+        uint256 verified;
+        uint256 audit;
     }
-
 
     /**
     @notice stakeMembership allows a user to stake DecentraStock in-order to become a Decentracorp member
     @param _stakeAmount is the amount of DecentraStock being staked on the users membership
     */
     function stakeMembership(uint256 _stakeAmount) external override {
-              dc.proxyBurnDS(msg.sender, _stakeAmount);
-              DScoreTracker storage dscore = members[msg.sender];
-              dscore.staked = dscore.staked.add(_stakeAmount);
-              emit MembershipStaked(msg.sender, _stakeAmount);
+        dc.proxyBurnDS(msg.sender, _stakeAmount);
+        DScoreTracker storage dscore = members[msg.sender];
+        dscore.staked = dscore.staked.add(_stakeAmount);
+        emit MembershipStaked(msg.sender, _stakeAmount);
     }
 
     /**
@@ -90,31 +87,35 @@ contract DScore is Ownable, IDScore {
             5 - Verified: number of times this member has been audited by other members
             6 - Audit: number of other members this account has audited
     */
-    function increaseDScore(address _member, uint256 _factor, uint256 _amount) public onlyDSmod override {
-              require(_factor < 7, "D-Score: Invalid factor");
-              DScoreTracker storage dscore = members[msg.sender];
-              if(_factor == 0){
-                dscore.level = dscore.level.add(_amount);
-              }
-              if(_factor == 1){
-                dscore.jobs = dscore.jobs.add(_amount);
-              }
-              if(_factor == 2){
-                dscore.votes = dscore.votes.add(_amount);
-              }
-              if(_factor == 3){
-                dscore.reputation = dscore.reputation.add(_amount);
-              }
-              if(_factor == 4){
-                  dscore.staked = dscore.staked.add(_amount);
-              }
-              if(_factor == 5){
-                dscore.verified = dscore.verified.add(_amount);
-              }
-              if(_factor == 6){
-                dscore.audit = dscore.audit.add(_amount);
-              }
-              emit DScoreIncreased(_member, _factor, _amount);
+    function increaseDScore(
+        address _member,
+        uint256 _factor,
+        uint256 _amount
+    ) public override onlyDSmod {
+        require(_factor < 7, "D-Score: Invalid factor");
+        DScoreTracker storage dscore = members[msg.sender];
+        if (_factor == 0) {
+            dscore.level = dscore.level.add(_amount);
+        }
+        if (_factor == 1) {
+            dscore.jobs = dscore.jobs.add(_amount);
+        }
+        if (_factor == 2) {
+            dscore.votes = dscore.votes.add(_amount);
+        }
+        if (_factor == 3) {
+            dscore.reputation = dscore.reputation.add(_amount);
+        }
+        if (_factor == 4) {
+            dscore.staked = dscore.staked.add(_amount);
+        }
+        if (_factor == 5) {
+            dscore.verified = dscore.verified.add(_amount);
+        }
+        if (_factor == 6) {
+            dscore.audit = dscore.audit.add(_amount);
+        }
+        emit DScoreIncreased(_member, _factor, _amount);
     }
 
     /**
@@ -123,43 +124,56 @@ contract DScore is Ownable, IDScore {
     @param _factor is the number representing which factor of the users D-Score is being decrease
     @param _amount is the amount the user's D-Score is being decrease by
     */
-    function decreaseDScore(address _member, uint256 _factor, uint256 _amount) public onlyDSmod override {
-      require(_factor < 7, "D-Score: Invalid factor");
-      DScoreTracker storage dscore = members[msg.sender];
-      if(_factor == 0){
-        dscore.level = dscore.level.sub(_amount);
-      }
-      if(_factor == 1){
-        dscore.jobs = dscore.jobs.sub(_amount);
-      }
-      if(_factor == 2){
-        dscore.votes = dscore.votes.sub(_amount);
-      }
-      if(_factor == 3){
-        dscore.reputation = dscore.reputation.sub(_amount);
-      }
-      if(_factor == 4){
-          dscore.staked = dscore.staked.sub(_amount);
-      }
-      if(_factor == 5){
-        dscore.verified = dscore.verified.sub(_amount);
-      }
-      if(_factor == 6){
-        dscore.audit = dscore.audit.sub(_amount);
-      }
-      emit DScoreDecreased(_member, _factor, _amount);
+    function decreaseDScore(
+        address _member,
+        uint256 _factor,
+        uint256 _amount
+    ) public override onlyDSmod {
+        require(_factor < 7, "D-Score: Invalid factor");
+        DScoreTracker storage dscore = members[msg.sender];
+        if (_factor == 0) {
+            dscore.level = dscore.level.sub(_amount);
+        }
+        if (_factor == 1) {
+            dscore.jobs = dscore.jobs.sub(_amount);
+        }
+        if (_factor == 2) {
+            dscore.votes = dscore.votes.sub(_amount);
+        }
+        if (_factor == 3) {
+            dscore.reputation = dscore.reputation.sub(_amount);
+        }
+        if (_factor == 4) {
+            dscore.staked = dscore.staked.sub(_amount);
+        }
+        if (_factor == 5) {
+            dscore.verified = dscore.verified.sub(_amount);
+        }
+        if (_factor == 6) {
+            dscore.audit = dscore.audit.sub(_amount);
+        }
+        emit DScoreDecreased(_member, _factor, _amount);
     }
-
 
     /**
     @notice calculateVotingPower is used to calculate a members current voting power relative to their D-Score
     @param _member is the address of the member who's voting power is being retreived
     */
-    function calculateVotingPower(address _member) external view override returns(uint256) {
-      DScoreTracker storage dscore = members[_member];
-      uint256 baseScore = dscore.staked.add(dscore.reputation).add(dscore.audit).add(dscore.staked).add(dscore.votes);
-      uint256 multiplyer =  dscore.level.add(dscore.jobs);
-      return baseScore.mul(multiplyer);
+    function calculateVotingPower(address _member)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        DScoreTracker storage dscore = members[_member];
+        uint256 baseScore = dscore
+            .staked
+            .add(dscore.reputation)
+            .add(dscore.audit)
+            .add(dscore.staked)
+            .add(dscore.votes);
+        uint256 multiplyer = dscore.level.add(dscore.jobs);
+        return baseScore.mul(multiplyer);
     }
 
     /**
@@ -168,12 +182,17 @@ contract DScore is Ownable, IDScore {
     @dev this function returns a bool for "yes staked" or "not staked". This function does NOT return
           the amount a member has staked
     */
-    function checkStaked(address _member) external view override returns(bool) {
-      DScoreTracker storage dscore = members[_member];
-      if(dscore.staked > 0) {
-        return true;
-      } else {
-        return false;
-      }
+    function checkStaked(address _member)
+        external
+        view
+        override
+        returns (bool)
+    {
+        DScoreTracker storage dscore = members[_member];
+        if (dscore.staked > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

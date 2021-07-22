@@ -25,7 +25,11 @@ contract DecentraStock is Ownable, ERC20, IDecentraStock {
   @param _to is the address the DecentraStock is being issued to
   @param _amount is the amount of DecentraStock being issued
     */
-    function issueStock(address _to, uint256 _amount) public onlyOwner override {
+    function issueStock(address _to, uint256 _amount)
+        public
+        override
+        onlyOwner
+    {
         _mint(_to, _amount);
     }
 
@@ -34,7 +38,11 @@ contract DecentraStock is Ownable, ERC20, IDecentraStock {
   @param _from is the address the DecentraStock is being burned from
   @param _amount is the amount of DecentraStock being burned
     */
-    function burnStock(address _from, uint256 _amount) public onlyOwner override {
+    function burnStock(address _from, uint256 _amount)
+        public
+        override
+        onlyOwner
+    {
         _burn(_from, _amount);
     }
 }

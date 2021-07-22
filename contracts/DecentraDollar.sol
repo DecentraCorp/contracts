@@ -25,7 +25,7 @@ contract DecentraDollar is Ownable, ERC20, IDecentraDollar {
     @param _to is the address the DecentraDollar is being minted to
     @param _amount is the amount of DecentraDollar being minted
     */
-    function mintDD(address _to, uint256 _amount) public onlyOwner override {
+    function mintDD(address _to, uint256 _amount) public override onlyOwner {
         _mint(_to, _amount);
         emit DD_Mined(_to, _amount);
     }
@@ -35,7 +35,7 @@ contract DecentraDollar is Ownable, ERC20, IDecentraDollar {
     @param _from is the address the DecentraDollar is being burned from
     @param _amount is the amount of DecentraDollar being burned
     */
-    function burnDD(address _from, uint256 _amount) public onlyOwner override {
+    function burnDD(address _from, uint256 _amount) public override onlyOwner {
         _burn(_from, _amount);
         emit DD_Burned(_from, _amount);
     }

@@ -20,7 +20,7 @@ interface IDecentraBank {
   @param _amount is the dollar amount being purchased
   @param _tokenType is the address of the approved collateral type being used
   */
-  function purchaseStock(uint256 _amount, uint256 _tokenType) external;
+  function purchaseStock(uint256 _amount, uint256 _tokenType) external payable;
 
   /**
   @notice sellStock is used to sell DecentraStock back to the DecentraBank bonding curve
@@ -38,7 +38,7 @@ interface IDecentraBank {
 
   /**
   @notice fundWithdrawl allows the owner of this contract to withdraw earned funds from the DecentraBank
-  @param _to is the address the funds are being withdrawn to
+  @param _to is the number representing the address the funds are being withdrawn to
   @param _type is the address of the collateral type being withdrawn
   */
   function fundWithdrawl(address _to, uint256 _type, uint256 _amount) external;

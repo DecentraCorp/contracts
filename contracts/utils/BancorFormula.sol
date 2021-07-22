@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Power.sol";
 
@@ -17,7 +16,7 @@ contract BancorFormula is Power {
     using SafeMath for uint256;
     uint32 public MAX_WEIGHT;
 
-    constructor() public {
+    constructor() {
         MAX_WEIGHT = 1000000;
     }
 
