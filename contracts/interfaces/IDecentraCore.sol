@@ -14,30 +14,10 @@ interface IDecentraCore {
 
   event FunctionCallDelegated(address target, uint256 amount, bytes call_data);
 
-  event MembershipStaked(address member, uint256 amountStaked);
-
-  event DScoreIncreased(address member, uint256 factor, uint256 amountIncreased);
-
-  event DScoreDecreased(address member, uint256 factor, uint256 amountDecreased);
-
-  /**
-  @notice submitProposal allows a user to submit a proposal to DecentraCorp
-  @param _proposalAmount is an optional value amount taht can be added to a proposal
-  @param _target is the address of the target of the proposal
-  @param call_data is the packaged function call that will be fired if this proposal is successful
-  */
-  function submitProposal(uint256 _proposalAmount, address _target, bytes call_data) external returns(uint256);
-
-  /**
-  @notice vote allows DecentraCorp members to vote on a proposal
-  @param _proposalId is the ID of the proposal being voted on
-  @param _vote a bool representing the users vote(yes = true / no = false)
-  */
-  function vote(uint256 _proposalId, bool _vote) external;
 
   /**
   @notice delegateFunctionCall is a protected function that allows the DecentraCorp contract
-          to make arbitrary calls to other contracts
+  to make arbitrary calls to other contracts
   @param _target is the address of the target of the call
   @param _amount is a value amount associated with the call
   @param call_data is the packaged function call that will be fired if this proposal is successful
@@ -48,61 +28,49 @@ interface IDecentraCore {
     bytes memory call_data
   ) external;
 
+  /**
+  @notice newProposaln allows a user to create a proposal
+  @param _target is the address this proposal is targeting
+  @param _amount is a value amount associated with the call
+  @param _proposalHash is an IPFS hash of a file representing a proposal
+  @param _calldata is a bytes representation of a function call
+  **/
+  function newProposal(
+      address payable _target,
+      uint256 _amount,
+      string memory _proposalHash,
+      bytes memory _calldata
+  ) external returns(uint256);
 
   /**
-  @notice setApprovedContract is a protected function that allows a successful proposal to grant DecentraDollar
-          minting privledges to DecentraCorp contract
+  @notice setQuorum allows the owner of the DAO(normally set as the the DAO itself) to change
+          the quorum used in voting
+  @notice _quorum is the input quarum number being set
+  **/
+  function setQuorum(uint256 _quorum) external;
+
+  /**
+  @notice the vote function allows a DAO member to vote on proposals made to the DAO
+  @param _ProposalID is the number ID associated with the particular proposal the user wishes to vote on
+  @param  supportsProposal is a bool value(true or false) representing whether or not a member supports a proposal
+                  -true if they do support the proposal
+                  -false if they do not support the proposal
+  @dev this function will trigger the _checkThreshold function which determines if enough members have voted to
+            fire the executeProposal function.(this is temporarily removed due to what im assuming are the gas block limit)
+  **/
+  function vote(uint256 _ProposalID, bool supportsProposal) external;
+
+  /**
+  @notice setApprovedContract is a protected function that allows a successful proposal to grant
+          privledges to DecentraCorp contracts
   @param _contract is the address of the contract being approved
+  @param _privledge is a number representing which privledge is being set
+  @dev privledges:
+                  1. Minting
+                  2. Burning
+                  3. D-Score
   */
-  function setApprovedContract(address _contract) external;
-
-  /**
-  @notice stakeMembership allows a user to stake DecentraStock in-order to become a Decentracorp member
-  @param _stakeAmount is the amount of DecentraStock being staked on the users membership
-  */
-  function stakeMembership(uint256 _stakeAmount) external;
-
-  /**
-  @notice increaseDScore is a protected function that allows approved DecentraCorp contracts to increase a users D-Score
-  @param _member is the address of the member who's D-Score is being increased
-  @param _factor is the number representing which factor of the users D-Score is being increased
-  @param _amount is the amount the user's D-Score is being increased by
-  @dev D-Score factors are represented by a number within a mapping. The key for this mapping is as follows:
-
-          0 - Level: a members level is determined by the DecentraCorp community as a way of rewarding members for non
-              D-job related tasks such as a technical task, community service, or other work related reward.
-          1 - Jobs: the number of completed jobs done by the member.
-          2 - Votes: the number of DecentraCorp votes the member has participated in.
-          3 - Reputation: the overall average of the rating of each job performed.
-          4 - Staked: the number of DercentraStock a member has staked
-          5 - Verified: number of times this member has been audited by other members
-          6 - Audit: number of other members this account has audited
-
-          @dev some of these factors are increased in ways other than this function such as #2 for votes
-  */
-  function increaseDScore(address _member, uint256 _factor, uint256 _amount) external;
-
-  /**
-  @notice increaseDScore is a protected function that allows approved DecentraCorp contracts to decrease a users D-Score
-  @param _member is the address of the member who's D-Score is being decrease
-  @param _factor is the number representing which factor of the users D-Score is being decrease
-  @param _amount is the amount the user's D-Score is being decrease by
-  */
-  function decreaseDScore(address _member, uint256 _factor, uint256 _amount) external;
-
-  /**
-  @notice freezeMember is a protected function used to allow for a DecentraCorp contract to freeze an accounts
-          Decentracorp fininces in the case of suspected fraud
-  @param _member is the address of the member who is being frozen
-  @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
-  */
-  function freezeMember(address _member) external;
-
-  /**
-  @notice calculateVotingPower is used to calculate a members current voting power relative to their D-Score
-  @param _member is the address of the member who's voting power is being retreived
-  */
-  function calculateVotingPower(address _member) external view returns(uint256);
+  function setApprovedContract(address _contract, uint256 _privledge) external;
 
   /**
   @notice proxyMintDD is a protected function that allows an approved contract to mint DecentraDollar

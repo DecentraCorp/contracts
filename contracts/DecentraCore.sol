@@ -1,17 +1,16 @@
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/ownership/Ownables.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./interfaces/IDecentraDollar.sol";
+import "./interfaces/IDecentraStock.sol";
+import "./interfaces/IDScore.sol";
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 /// @title DecentraCore
 /// @author Christopher Dixon
 ////////////////////////////////////////////////////////////////////////////////////////////
-/**
-The Cortex contract is designed to be a bare bones, minimalistic approach to a versitile DAO structure. The Cortex is designed as
-    the control center that Allows a DAO to work with neuron contracts and contracts outside of the zer0 ecosystem.
-**/
 
 contract DecentraCore is Ownable {
     using SafeMath for uint256;
@@ -21,9 +20,39 @@ contract DecentraCore is Ownable {
     uint256 public proposalTime;
     /// @notice quorum is the minimum percentage of voteWeight needed for a vote to pass
     uint256 public quorum;
+    /// @notice dd is the DecentraDollar contract
+    DecentraDollar public dd;
+    /// @notice ds is the DecentraStock contract
+    DecentraStock public ds;
+    /// @notice dScore is the D-Score contract
+    IDScore public DScore;
+
+    /// @notice frozenAccounts is a mapping of which accounts are frozen
+    mapping(address => bool) public frozenAccounts;
+
+    /// @notice freezeFrame is a mapping of an accounts frozen time
+    mapping(address => bool) public freezeFrame;
 
     /// @notice Proposal stores proposals
     mapping(uint256 => Proposal) public proposals;
+
+    /**
+    @notice minters is a mapping of DecentraCorp contracts
+                that gives them elevated minting privledges
+    */
+    mapping(address => bool) public minters;
+
+    /**
+    @notice burners is a mapping of DecentraCorp contracts
+                that gives them elevated burning privledges
+    */
+    mapping(address => bool) public burners;
+
+    /**
+    @notice dScoreMod is a mapping of official DecentraCorp contracts
+                that gives them elevated dScore modification privledges
+    */
+    mapping(address => bool) public dScoreMod;
 
     /**
     @notice Proposal struct stores proposal information
@@ -65,6 +94,22 @@ contract DecentraCore is Ownable {
         uint256 voteWeight;
     }
 
+    /**
+    @notice the modifier onlyMember requires that the function caller must be a member of the DAO to call a function
+    @dev this requires the caller to have atleast 1e18 of a token(standard 1 for ERC20's)
+    **/
+    modifier onlyMint() {
+        require(minters[msg.sender], "DecentraCore: Caller is not a minter");
+        _;
+    }
+    /**
+    @notice the modifier onlyMember requires that the function caller must be a member of the DAO to call a function
+    @dev this requires the caller to have atleast 1e18 of a token(standard 1 for ERC20's)
+    **/
+    modifier onlyBurn() {
+        require(burners[msg.sender], "DecentraCore: Caller is not a burner");
+        _;
+    }
 
     /**
     @notice the modifier onlyMember requires that the function caller must be a member of the DAO to call a function
@@ -72,34 +117,42 @@ contract DecentraCore is Ownable {
     **/
     modifier onlyMember() {
         require(
-            synaps.balanceOf(msg.sender) >= 1e18,
-            "You are not a member of this DAO"
+            dScore.checkStaked(msg.sender),
+            "DecentraCore: Caller is not an active member"
         );
         _;
+    }
+
+    constructor(
+        address _dDollar,
+        address _dStock,
+        address _dScore
+    ) {
+        dd = IDecentraDollar(_dDollar);
+        ds = IDecentraStock(_dStock);
+        dScore = IDScore(_dScore);
     }
 
     ///fallback function so this contract can receive ETH
     function() external payable {}
 
-
     /**
-    @notice delegateFunctionCall allows a neuron contract to make an arbitrary call from the Cortex
+    @notice delegateFunctionCall allows the DecentraCore contract to make arbitrary calls to other contracts
     @param _target is the target address where the function will be called
-    @param _amount is an eth amount to be passed from the Cortex in the function call(put zero if not applicable)
-    @param call_data is a bytes representation of the function the Cortex is calling and its input paramters
+    @param _amount is an eth amount to be passed from this contract to the target contract
+    @param call_data is a bytes representation of the function the Decentracorp contract is calling and its input paramters
     **/
     function delegateFunctionCall(
         address payable _target,
         uint256 _amount,
         bytes memory call_data
     ) public onlyApprovedDelegator {
-        (bool success, bytes memory data) =
-            _target.call(call_data);
+        (bool success, bytes memory data) = _target.call(call_data);
         require(success, "delegateFunctionCall Failed");
     }
 
     /**
-    @notice transferxDAI is used to easily transfer xDAI from the cortex contract
+    @notice transferxDAI is used to easily transfer xDAI from the DecentraCorp contract
     @param _to is the address tokens are being minted to
     @param _amount is the amount of tokens being minted
     @dev this function is intended to be used with the proposal system
@@ -111,11 +164,10 @@ contract DecentraCore is Ownable {
         _to.transfer(_amount);
     }
 
-
-
     /**
     @notice newProposaln allows a user to create a proposal
     @param _target is the address this proposal is targeting
+    @param _amount is a value amount associated with the call
     @param _proposalHash is an IPFS hash of a file representing a proposal
     @param _calldata is a bytes representation of a function call
     **/
@@ -191,13 +243,13 @@ contract DecentraCore is Ownable {
     }
 
     /**
-    @notice the vote function allows a DAO member to vote on proposals made to the DAO
+    @notice the vote function allows a DecentraCorp member to vote on proposals
     @param _ProposalID is the number ID associated with the particular proposal the user wishes to vote on
     @param  supportsProposal is a bool value(true or false) representing whether or not a member supports a proposal
                     -true if they do support the proposal
                     -false if they do not support the proposal
     @dev this function will trigger the _checkThreshold function which determines if enough members have voted to
-              fire the executeProposal function.(this is temporarily removed due to what im assuming are the gas block limit)
+              fire the executeProposal function.
     **/
     function vote(uint256 _ProposalID, bool supportsProposal)
         public
@@ -209,18 +261,7 @@ contract DecentraCore is Ownable {
             "You Have already voted on this proposal"
         );
         uint256 vw = synaps.balanceOf(msg.sender);
-        if (isTransferable) {
-            (uint256 time, uint256 space) =
-                synaps.getRelativePosition(msg.sender);
-            require(
-                vw == space,
-                "Violating Relativity: Space error token amounts dont match"
-            );
-            require(
-                p.timeCreated >= time,
-                "Violating Relativity: Time error token times dont match"
-            );
-        }
+
         p.voteID = p.voteID++;
         p.votes[p.voteID] = Vote({
             inSupport: supportsProposal,
@@ -232,8 +273,8 @@ contract DecentraCore is Ownable {
         uint256 ts = synaps.totalSupply();
         //checks if enough members have voted
         bool met = _checkThreshold(p.voteWeights, ts);
-        if(met) {
-          executeProposal(_ProposalID);
+        if (met) {
+            executeProposal(_ProposalID);
         }
     }
 
@@ -242,7 +283,7 @@ contract DecentraCore is Ownable {
     @dev this function is called by the vote function when the number of votes reaches the quorum
     @param _proposalID is the ID number of the proposal being executed.
     **/
-    function executeProposal(uint256 _proposalID)  internal {
+    function executeProposal(uint256 _proposalID) internal {
         Proposal storage p = proposals[_proposalID];
 
         if (now.sub(p.timeCreated) >= proposalTime) {
@@ -281,5 +322,86 @@ contract DecentraCore is Ownable {
                 p.proposalPassed = false;
             }
         }
+    }
+
+    /**
+    @notice setApprovedContract is a protected function that allows a successful proposal to grant
+            privledges to DecentraCorp contracts
+    @param _contract is the address of the contract being approved
+    @param _privledge is a number representing which privledge is being set
+    @dev privledges:
+                    1. Minting
+                    2. Burning
+                    3. D-Score
+    */
+    function setApprovedContract(address _contract, uint256 _privledge)
+        external
+        onlyOwner
+    {
+        require(
+            _privledge > 0 && _privledge < 4,
+            "DecentraCore: Invalid Input Privledge"
+        );
+        if (_privledge == 1) {
+            minters[_contract] = true;
+        }
+        if (_privledge == 2) {
+            burners[_contract] = true;
+        }
+        if (_privledge == 3) {
+            dScoreMod[_contract] = true;
+        }
+    }
+
+    /**
+    @notice freezeMember is a protected function used to allow for a DecentraCorp contract to freeze an account
+            in the case of suspected fraud
+    @param _member is the address of the member who is being frozen
+    @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
+    @dev this function can also be used to un-freeze an account
+    */
+    function freezeMember(address _member) external onlyOnwer {
+        if (frozenAccounts[_member]) {
+            frozenAccounts[_member] = false;
+        } else {
+            frozenAccounts[_member] = true;
+            freezeFrame[_member] = now;
+        }
+    }
+
+    /**
+    @notice proxyMintDD is a protected function that allows an approved contract to mint DecentraDollar
+    @param _to is the address the DecentraDollar is being minted to
+    @param _amount is the amount being minted
+    */
+    function proxyMintDD(address _to, uint256 _amount) public onlyMint {
+        dd.mintDD(_to, _amount);
+    }
+
+    /**
+    @notice proxyMintDS is a protected function that allows an approved contract to issue DecentraStock
+    @param _to is the address the DecentraStock is being issued to
+    @param _amount is the amount being issued
+    */
+    function proxyMintDS(address _to, uint256 _amount) public onlyMint {
+        ds.issueStock(_to, _amount);
+    }
+
+    /**
+    @notice proxyBurnDD is a protected function that allows an approved contract to burn DecentraDollar
+    @param _from is the address the DecentraDollar is being burned from
+    @param _amount is the amount being burned
+    */
+    function proxyBurnDD(address _from, uint256 _amount) public onlyBurn {
+        dd.burnDD(_from, _amount);
+    }
+
+    /**
+    @notice proxyBurnDS is a protected function that allows an approved contract to burn DecentraStock
+    @param _from is the address the DecentraStock is being burned from
+    @param _amount is the amount being burned
+    */
+    function proxyBurnDS(address _from, uint256 _amount) public onlyBurn {
+        ds.burnStock(_from, _amount);
     }
 }
