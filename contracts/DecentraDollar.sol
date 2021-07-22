@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -16,7 +15,7 @@ import "./interfaces/IDecentraDollar.sol";
         Open Zeppelin's smart-contract library. Decentradollar is designed
         to be a loosly tethered semi-stablecoin
 **/
-contract DecentraDollar is Ownable, ERC20 {
+contract DecentraDollar is Ownable, ERC20, IDecentraDollar {
     constructor() ERC20("DecentraDollar", "D$") {
         mintDD(msg.sender, 10000000000000000000000000000);
     }
@@ -26,7 +25,7 @@ contract DecentraDollar is Ownable, ERC20 {
     @param _to is the address the DecentraDollar is being minted to
     @param _amount is the amount of DecentraDollar being minted
     */
-    function mintDD(address _to, uint256 _amount) public onlyOwner {
+    function mintDD(address _to, uint256 _amount) public onlyOwner override {
         _mint(_to, _amount);
         emit DD_Mined(_to, _amount);
     }
@@ -36,7 +35,7 @@ contract DecentraDollar is Ownable, ERC20 {
     @param _from is the address the DecentraDollar is being burned from
     @param _amount is the amount of DecentraDollar being burned
     */
-    function burnDD(address _from, uint256 _amount) public onlyOwner {
+    function burnDD(address _from, uint256 _amount) public onlyOwner override {
         _burn(_from, _amount);
         emit DD_Burned(_from, _amount);
     }

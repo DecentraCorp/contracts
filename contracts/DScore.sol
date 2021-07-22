@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -5,18 +6,15 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./interfaces/IDecentraCore.sol";
 import "./interfaces/IDecentraStock.sol";
+import "./interfaces/IDScore.sol";
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-/// @title DecentraCore
+/// @title DScore
 /// @author Christopher Dixon
 ////////////////////////////////////////////////////////////////////////////////////////////
-/**
-The Cortex contract is designed to be a bare bones, minimalistic approach to a versitile DAO structure. The Cortex is designed as
-    the control center that Allows a DAO to work with neuron contracts and contracts outside of the zer0 ecosystem.
-**/
 
-contract DecentraCore is Ownable {
+contract DScore is Ownable, IDScore {
     using SafeMath for uint256;
 
     ///stakedCounter is a tracker for the total number of DecentraStock staked
@@ -24,11 +22,11 @@ contract DecentraCore is Ownable {
 
     /// @notice ds is the DecentraStock contract
     IDecentraStock public ds;
-    /// @notice ds is the DecentraCore contract
+    /// @notice dc is the DecentraCore contract
     IDecentraCore public dc;
 
     ///@notice members tracks a members D-Score to their address
-    mapping(address => DScore) public members;
+    mapping(address => DScoreTracker) public members;
 
     /**
     @notice the modifier onlyMember requires that the function caller must be a member of the DAO to call a function
@@ -44,7 +42,7 @@ contract DecentraCore is Ownable {
 
 
     /**
-    @notice DScore is a struct used to store a Decentracorp members D-Score parameters
+    @notice DScoreTracker is a struct used to store a Decentracorp members D-Score parameters
     @param level is a members level that is determined by the DecentraCorp community as a way of rewarding members for non
         D-job related tasks such as a technical task, community service, or other work related reward.
     @param jobs is the number of completed jobs done by the member.
@@ -54,13 +52,13 @@ contract DecentraCore is Ownable {
     @param verified is the number of times this member has been audited by other members
     @param audit is the number of other members this account has audited
     */
-    struct DScore {
+    struct DScoreTracker {
       uint256 level;
       uint256 jobs;
       uint256 votes;
       uint256 reputation;
       uint256 staked;
-      uint267 verified;
+      uint256 verified;
       uint256 audit;
     }
 
@@ -69,9 +67,9 @@ contract DecentraCore is Ownable {
     @notice stakeMembership allows a user to stake DecentraStock in-order to become a Decentracorp member
     @param _stakeAmount is the amount of DecentraStock being staked on the users membership
     */
-    function stakeMembership(uint256 _stakeAmount) external {
+    function stakeMembership(uint256 _stakeAmount) external override {
               dc.proxyBurnDS(msg.sender, _stakeAmount);
-              DScore storage dscore = members[msg.sender];
+              DScoreTracker storage dscore = members[msg.sender];
               dscore.staked = dscore.staked.add(_stakeAmount);
               emit MembershipStaked(msg.sender, _stakeAmount);
     }
@@ -92,9 +90,9 @@ contract DecentraCore is Ownable {
             5 - Verified: number of times this member has been audited by other members
             6 - Audit: number of other members this account has audited
     */
-    function increaseDScore(address _member, uint256 _factor, uint256 _amount) public onlyDSmod {
-              require(_factor < 7, "D-Score: Invalid factor")
-              DScore storage dscore = members[msg.sender];
+    function increaseDScore(address _member, uint256 _factor, uint256 _amount) public onlyDSmod override {
+              require(_factor < 7, "D-Score: Invalid factor");
+              DScoreTracker storage dscore = members[msg.sender];
               if(_factor == 0){
                 dscore.level = dscore.level.add(_amount);
               }
@@ -125,9 +123,9 @@ contract DecentraCore is Ownable {
     @param _factor is the number representing which factor of the users D-Score is being decrease
     @param _amount is the amount the user's D-Score is being decrease by
     */
-    function decreaseDScore(address _member, uint256 _factor, uint256 _amount) public onlyDSmod {
-      require(_factor < 7, "D-Score: Invalid factor")
-      DScore storage dscore = members[msg.sender];
+    function decreaseDScore(address _member, uint256 _factor, uint256 _amount) public onlyDSmod override {
+      require(_factor < 7, "D-Score: Invalid factor");
+      DScoreTracker storage dscore = members[msg.sender];
       if(_factor == 0){
         dscore.level = dscore.level.sub(_amount);
       }
@@ -157,7 +155,12 @@ contract DecentraCore is Ownable {
     @notice calculateVotingPower is used to calculate a members current voting power relative to their D-Score
     @param _member is the address of the member who's voting power is being retreived
     */
-    function calculateVotingPower(address _member) external view returns(uint256);
+    function calculateVotingPower(address _member) external view override returns(uint256) {
+      DScoreTracker storage dscore = members[_member];
+      uint256 baseScore = dscore.staked.add(dscore.reputation).add(dscore.audit).add(dscore.staked).add(dscore.votes);
+      uint256 multiplyer =  dscore.level.add(dscore.jobs);
+      return baseScore.mul(multiplyer);
+    }
 
     /**
     @notice checkStaked is a view only function to easily check if an account is a staked member
@@ -165,5 +168,12 @@ contract DecentraCore is Ownable {
     @dev this function returns a bool for "yes staked" or "not staked". This function does NOT return
           the amount a member has staked
     */
-    function checkStaked(address _member) external view returns(bool);
+    function checkStaked(address _member) external view override returns(bool) {
+      DScoreTracker storage dscore = members[_member];
+      if(dscore.staked > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 }

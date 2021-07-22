@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -6,13 +7,15 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./interfaces/IDecentraDollar.sol";
 import "./interfaces/IDecentraStock.sol";
 import "./interfaces/IDScore.sol";
+import "./interfaces/IDecentraCore.sol";
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 /// @title DecentraCore
 /// @author Christopher Dixon
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-contract DecentraCore is Ownable {
+contract DecentraCore is Ownable, IDecentraCore {
     using SafeMath for uint256;
     /// @notice proposalID is used to track proposals
     uint256 public proposalID;
@@ -21,17 +24,17 @@ contract DecentraCore is Ownable {
     /// @notice quorum is the minimum percentage of voteWeight needed for a vote to pass
     uint256 public quorum;
     /// @notice dd is the DecentraDollar contract
-    DecentraDollar public dd;
+    IDecentraDollar public dd;
     /// @notice ds is the DecentraStock contract
-    DecentraStock public ds;
+    IDecentraStock public ds;
     /// @notice dScore is the D-Score contract
-    IDScore public DScore;
+    IDScore public dScore;
 
     /// @notice frozenAccounts is a mapping of which accounts are frozen
     mapping(address => bool) public frozenAccounts;
 
     /// @notice freezeFrame is a mapping of an accounts frozen time
-    mapping(address => bool) public freezeFrame;
+    mapping(address => uint256) public freezeFrame;
 
     /// @notice Proposal stores proposals
     mapping(uint256 => Proposal) public proposals;
@@ -52,7 +55,13 @@ contract DecentraCore is Ownable {
     @notice dScoreMod is a mapping of official DecentraCorp contracts
                 that gives them elevated dScore modification privledges
     */
-    mapping(address => bool) public dScoreMod;
+    mapping(address => bool) public override dScoreMod;
+
+    /**
+    @notice delegators is a mapping of official DecentraCorp contracts
+                that gives them elevated delegator privledges
+    */
+    mapping(address => bool) public delegators;
 
     /**
     @notice Proposal struct stores proposal information
@@ -95,16 +104,14 @@ contract DecentraCore is Ownable {
     }
 
     /**
-    @notice the modifier onlyMember requires that the function caller must be a member of the DAO to call a function
-    @dev this requires the caller to have atleast 1e18 of a token(standard 1 for ERC20's)
+    @notice the modifier onlyMint requires that the function caller must be a approved minter
     **/
     modifier onlyMint() {
         require(minters[msg.sender], "DecentraCore: Caller is not a minter");
         _;
     }
     /**
-    @notice the modifier onlyMember requires that the function caller must be a member of the DAO to call a function
-    @dev this requires the caller to have atleast 1e18 of a token(standard 1 for ERC20's)
+    @notice the modifier onlyBurn requires that the function caller must be a approved burner
     **/
     modifier onlyBurn() {
         require(burners[msg.sender], "DecentraCore: Caller is not a burner");
@@ -112,14 +119,21 @@ contract DecentraCore is Ownable {
     }
 
     /**
-    @notice the modifier onlyMember requires that the function caller must be a member of the DAO to call a function
-    @dev this requires the caller to have atleast 1e18 of a token(standard 1 for ERC20's)
+    @notice the modifier onlyMember requires that the function caller must be a member
     **/
     modifier onlyMember() {
         require(
             dScore.checkStaked(msg.sender),
             "DecentraCore: Caller is not an active member"
         );
+        _;
+    }
+
+    /**
+    @notice the modifier onlyApprovedDelegator requires that the function caller must be a approved delegator
+    **/
+    modifier onlyApprovedDelegator() {
+        require(delegators[msg.sender], "DecentraCore: Caller is not a delegator");
         _;
     }
 
@@ -134,7 +148,7 @@ contract DecentraCore is Ownable {
     }
 
     ///fallback function so this contract can receive ETH
-    function() external payable {}
+     fallback() external payable {}
 
     /**
     @notice delegateFunctionCall allows the DecentraCore contract to make arbitrary calls to other contracts
@@ -146,7 +160,7 @@ contract DecentraCore is Ownable {
         address payable _target,
         uint256 _amount,
         bytes memory call_data
-    ) public onlyApprovedDelegator {
+    ) public override onlyApprovedDelegator {
         (bool success, bytes memory data) = _target.call(call_data);
         require(success, "delegateFunctionCall Failed");
     }
@@ -160,6 +174,7 @@ contract DecentraCore is Ownable {
     function transferxDAI(address payable _to, uint256 _amount)
         public
         onlyOwner
+        override
     {
         _to.transfer(_amount);
     }
@@ -176,7 +191,7 @@ contract DecentraCore is Ownable {
         uint256 _amount,
         string memory _proposalHash,
         bytes memory _calldata
-    ) public payable onlyMember returns (uint256) {
+    ) public payable onlyMember override returns (uint256) {
         proposalID++;
         Proposal storage p = proposals[proposalID];
         p.maker = msg.sender;
@@ -185,7 +200,7 @@ contract DecentraCore is Ownable {
         p.voteWeights = 0;
         p.voteID = 0;
         p.amount = 0;
-        p.timeCreated = now;
+        p.timeCreated = block.timestamp;
         p.proposalHash = _proposalHash;
         p.call_data = _calldata;
         return proposalID;
@@ -196,7 +211,7 @@ contract DecentraCore is Ownable {
             the quorum used in voting
     @notice _quorum is the input quarum number being set
     **/
-    function setQuorum(uint256 _quorum) public onlyOwner {
+    function setQuorum(uint256 _quorum) public onlyOwner override {
         quorum = _quorum;
     }
 
@@ -254,13 +269,14 @@ contract DecentraCore is Ownable {
     function vote(uint256 _ProposalID, bool supportsProposal)
         public
         onlyMember
+        override
     {
         Proposal storage p = proposals[_ProposalID];
         require(
             p.voted[msg.sender] != true,
             "You Have already voted on this proposal"
         );
-        uint256 vw = synaps.balanceOf(msg.sender);
+        uint256 vw = ds.balanceOf(msg.sender);
 
         p.voteID = p.voteID++;
         p.votes[p.voteID] = Vote({
@@ -270,7 +286,7 @@ contract DecentraCore is Ownable {
         });
         p.voteWeights = p.voteWeights.add(vw);
         p.voted[msg.sender] = true;
-        uint256 ts = synaps.totalSupply();
+        uint256 ts = ds.totalSupply();
         //checks if enough members have voted
         bool met = _checkThreshold(p.voteWeights, ts);
         if (met) {
@@ -286,7 +302,7 @@ contract DecentraCore is Ownable {
     function executeProposal(uint256 _proposalID) internal {
         Proposal storage p = proposals[_proposalID];
 
-        if (now.sub(p.timeCreated) >= proposalTime) {
+        if (block.timestamp.sub(p.timeCreated) >= proposalTime) {
             // mark the proposal as executed and failed
             p.executed = true;
             p.proposalPassed = false;
@@ -337,6 +353,7 @@ contract DecentraCore is Ownable {
     function setApprovedContract(address _contract, uint256 _privledge)
         external
         onlyOwner
+        override
     {
         require(
             _privledge > 0 && _privledge < 4,
@@ -360,12 +377,12 @@ contract DecentraCore is Ownable {
     @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
     @dev this function can also be used to un-freeze an account
     */
-    function freezeMember(address _member) external onlyOnwer {
+    function freezeMember(address _member) external onlyOwner override {
         if (frozenAccounts[_member]) {
             frozenAccounts[_member] = false;
         } else {
             frozenAccounts[_member] = true;
-            freezeFrame[_member] = now;
+            freezeFrame[_member] = block.timestamp;
         }
     }
 
@@ -374,7 +391,7 @@ contract DecentraCore is Ownable {
     @param _to is the address the DecentraDollar is being minted to
     @param _amount is the amount being minted
     */
-    function proxyMintDD(address _to, uint256 _amount) public onlyMint {
+    function proxyMintDD(address _to, uint256 _amount) public onlyMint override {
         dd.mintDD(_to, _amount);
     }
 
@@ -383,7 +400,7 @@ contract DecentraCore is Ownable {
     @param _to is the address the DecentraStock is being issued to
     @param _amount is the amount being issued
     */
-    function proxyMintDS(address _to, uint256 _amount) public onlyMint {
+    function proxyMintDS(address _to, uint256 _amount) public onlyMint override {
         ds.issueStock(_to, _amount);
     }
 
@@ -392,7 +409,7 @@ contract DecentraCore is Ownable {
     @param _from is the address the DecentraDollar is being burned from
     @param _amount is the amount being burned
     */
-    function proxyBurnDD(address _from, uint256 _amount) public onlyBurn {
+    function proxyBurnDD(address _from, uint256 _amount) public onlyBurn override {
         dd.burnDD(_from, _amount);
     }
 
@@ -401,7 +418,7 @@ contract DecentraCore is Ownable {
     @param _from is the address the DecentraStock is being burned from
     @param _amount is the amount being burned
     */
-    function proxyBurnDS(address _from, uint256 _amount) public onlyBurn {
+    function proxyBurnDS(address _from, uint256 _amount) public onlyBurn override {
         ds.burnStock(_from, _amount);
     }
 }

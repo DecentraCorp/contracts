@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface IDScore {
@@ -68,4 +68,12 @@ interface IDScore {
         external
         view
         returns (uint256);
+
+        /**
+        @notice checkStaked is a view only function to easily check if an account is a staked member
+        @param _member is the address in question
+        @dev this function returns a bool for "yes staked" or "not staked". This function does NOT return
+              the amount a member has staked
+        */
+        function checkStaked(address _member) external view returns(bool);
 }

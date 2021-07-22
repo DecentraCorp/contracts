@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "./BancorFormulaI.sol";
@@ -18,9 +18,9 @@ interface IDecentraBank {
   @notice purchaseStock is used to purchase DecentraStock at its current price
           as set by the DecentraBank bonding curve
   @param _amount is the dollar amount being purchased
-  @param _token is the address of the approved collateral type being used
+  @param _tokenType is the address of the approved collateral type being used
   */
-  function purchaseStock(uint256 _amount, address _token) external;
+  function purchaseStock(uint256 _amount, uint256 _tokenType) external;
 
   /**
   @notice sellStock is used to sell DecentraStock back to the DecentraBank bonding curve
@@ -41,7 +41,7 @@ interface IDecentraBank {
   @param _to is the address the funds are being withdrawn to
   @param _type is the address of the collateral type being withdrawn
   */
-  function fundWithdrawl(address _to, address _type) external;
+  function fundWithdrawl(address _to, uint256 _type, uint256 _amount) external;
 
   /**
   @notice calculatePoolBal is used to calculate the total pool balance of the DecentraBank contract
@@ -53,7 +53,7 @@ interface IDecentraBank {
           DecentraStock that dollar amount is worth
   @param _dollarAmount is the dollar amount value being spent on DecentraStock
   */
-  function calculatePurchase(uint256 _dollarAmount) external view return(uint256);
+  function calculatePurchase(uint256 _dollarAmount) external view returns(uint256);
 
   /**
   @notice calculateSale is a view function used to tell the dollar amount a DecentraStock could be sold

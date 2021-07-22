@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -8,6 +8,8 @@ import "./utils/BancorFormula.sol";
 import "./interfaces/IDecentraDollar.sol";
 import "./interfaces/IDecentraStock.sol";
 import "./interfaces/IDecentraCore.sol";
+import "./interfaces/IDecentraBank.sol";
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 /// @title DecentraBank
@@ -15,7 +17,7 @@ import "./interfaces/IDecentraCore.sol";
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-contract DecentraBank is Ownable, BancorFormula {
+contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
   using SafeMath for uint;
 
     uint32 public connectorWeight; /** connectorWeight, represented in ppm, 1-1000000
@@ -44,7 +46,9 @@ contract DecentraBank is Ownable, BancorFormula {
     constructor(
       address _Dcore,
       address _Dstock,
-      address _Ddollar
+      address _Ddollar,
+      uint32 _connectorWeight,
+      uint256 _refundRatio
     )
     public
     payable {
@@ -59,19 +63,19 @@ contract DecentraBank is Ownable, BancorFormula {
       percent = 25;
       divisor = 10000;
       fractionalReserveValue = 2;
-      poolBalance = msg.value.mul(2);
+      uint256 poolBalance = msg.value.mul(fractionalReserveValue);
       DC.proxyMintDD(address(this), msg.value);
-      uint256 dsValue =
-      DC.proxyMintDS(address(DC), )
+      uint256 dsValue = calculatePurchase(msg.value);
+      DC.proxyMintDS(msg.sender, dsValue);
     }
 
   /**
   @notice purchaseStock is used to purchase DecentraStock at its current price
           as set by the DecentraBank bonding curve
   @param _amount is the dollar amount being purchased
-  @param _token is the address of the approved collateral type being used
+  @param _tokenType is the address of the approved collateral type being used
   */
-  function purchaseStock(uint256 _amount, uint256 _tokenType) external {
+  function purchaseStock(uint256 _amount, uint256 _tokenType) external payable override {
 
     uint256 stockPurchased = calculatePurchase(_amount);
     uint value;
@@ -93,14 +97,14 @@ contract DecentraBank is Ownable, BancorFormula {
        repays the caller in equal parts of each approved collateral types
        EX: 1/3rd DAI, 1/3rd DecentraDollar, 1/3rd USDC
   */
-  function sellStock(uint256 _amount) external {
+  function sellStock(uint256 _amount) external override {
     uint256 returnValue = calculateSale(_amount);
     DC.proxyBurnDS(msg.sender, returnValue);
     uint256 returnFraction = collateralTypes.length;
     uint256 returnedAmount = returnValue.div(returnFraction);
       for (uint256 i = 0; i <= collateralTypes.length; ++i) {
           if(collateralTypes[i] == address(0)) {
-            msg.sender.transfer(returnedAmount);
+            payable(msg.sender).transfer(returnedAmount);
           } else {
             IERC20 token = IERC20(collateralTypes[i]);
             token.transfer(msg.sender, returnedAmount);
@@ -114,7 +118,7 @@ contract DecentraBank is Ownable, BancorFormula {
   @param _collateral is the address of the new ERC20 collateral being added
   @dev this function should only be used to add stablecoins ass collateral
   */
-  function addNewCollateralType(address _collateral) external onlyOwner {
+  function addNewCollateralType(address _collateral) external onlyOwner override {
     collateralCount++;
     collateralTypes[collateralCount] = _collateral;
   }
@@ -122,14 +126,18 @@ contract DecentraBank is Ownable, BancorFormula {
   /**
   @notice fundWithdrawl allows the owner of this contract to withdraw earned funds from the DecentraBank
   @param _to is the address the funds are being withdrawn totalAmount
-  @param _type is the address of the collateral type being withdrawn
+  @param _to is the number representing the address the funds are being withdrawn to
+  @param _amount is the amount of token being transfered
   */
-  function fundWithdrawl(address _to, address _type) external;
+  function fundWithdrawl(address _to, uint256 _type, uint256 _amount) external onlyOwner override{
+          IERC20 token = IERC20(collateralTypes[_type]);
+          token.transfer(_to, _amount);
+  }
 
   /**
   @notice calculatePoolBal is used to calculate the total pool balance of the DecentraBank contract
   */
-  function calculatePoolBal() external view returns(uint256) {
+  function calculatePoolBal() public view override returns(uint256) {
     uint total;
       for (uint256 i = 0; i <= collateralTypes.length; ++i) {
           if(collateralTypes[i] == address(0)) {
@@ -148,7 +156,7 @@ contract DecentraBank is Ownable, BancorFormula {
           DecentraStock that dollar amount is worth
   @param _dollarAmount is the dollar amount value being spent on DecentraStock
   */
-  function calculatePurchase(uint256 _dollarAmount) external view return(uint256) {
+  function calculatePurchase(uint256 _dollarAmount) public view override returns(uint256) {
     uint256 poolBalance = calculatePoolBal();
     uint256 totalDSsupply = DS.totalSupply();
     uint256 stockToIssue = calculatePurchaseReturn(totalDSsupply, poolBalance, connectorWeight, _dollarAmount);
@@ -160,7 +168,7 @@ contract DecentraBank is Ownable, BancorFormula {
           for.
   @param _stockAmount is the input amount of stocks being used to calculate the sell value
   */
-  function calculateSale(uint256 _stockAmount) external view returns(uint256) {
+  function calculateSale(uint256 _stockAmount) public view override returns(uint256) {
     uint256 poolBalance = calculatePoolBal();
     uint256 totalDSsupply = DS.totalSupply();
     uint256 valueReturned = calculateSaleReturn(totalDSsupply, poolBalance, connectorWeight, _stockAmount);

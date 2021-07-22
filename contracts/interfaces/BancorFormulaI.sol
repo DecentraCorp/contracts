@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract BancorFormulaI {
+interface BancorFormulaI {
     /**
 @notice calculatePurchaseReturn is used to calculate the exchange rate from ether to an instances MeToken given the input parameters
 @dev this function is apart of the Bancor Formula Contract inherited by the MeTokenFactory
@@ -17,7 +18,7 @@ contract BancorFormulaI {
         uint256 _connectorBalance,
         uint32 _connectorWeight,
         uint256 _depositAmount
-    ) public view returns (uint256);
+    ) external view returns (uint256);
 
     /**
 @notice calculateSaleReturn is used to calculate the current exchange rate for meTokens to ether for a given MeTokenInstance
@@ -34,5 +35,5 @@ contract BancorFormulaI {
         uint256 _connectorBalance,
         uint32 _connectorWeight,
         uint256 _sellAmount
-    ) public view returns (uint256);
+    ) external view returns (uint256);
 }

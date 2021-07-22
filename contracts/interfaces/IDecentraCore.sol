@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 
@@ -10,7 +10,7 @@ interface IDecentraCore {
 
   event ProposalApproved(uint256 proposalId, bool success);
 
-  event NewApprovedContract(address contract);
+//  event NewApprovedContract(address, contract);
 
   event FunctionCallDelegated(address target, uint256 amount, bytes call_data);
 
@@ -29,6 +29,14 @@ interface IDecentraCore {
   ) external;
 
   /**
+  @notice transferxDAI is used to easily transfer xDAI from the DecentraCorp contract
+  @param _to is the address tokens are being minted to
+  @param _amount is the amount of tokens being minted
+  @dev this function is intended to be used with the proposal system
+  **/
+  function transferxDAI(address payable _to, uint256 _amount) external;
+
+  /**
   @notice newProposaln allows a user to create a proposal
   @param _target is the address this proposal is targeting
   @param _amount is a value amount associated with the call
@@ -40,7 +48,7 @@ interface IDecentraCore {
       uint256 _amount,
       string memory _proposalHash,
       bytes memory _calldata
-  ) external returns(uint256);
+  ) external payable returns(uint256);
 
   /**
   @notice setQuorum allows the owner of the DAO(normally set as the the DAO itself) to change
@@ -73,6 +81,15 @@ interface IDecentraCore {
   function setApprovedContract(address _contract, uint256 _privledge) external;
 
   /**
+  @notice freezeMember is a protected function used to allow for a DecentraCorp contract to freeze an account
+          in the case of suspected fraud
+  @param _member is the address of the member who is being frozen
+  @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
+  @dev this function can also be used to un-freeze an account
+  */
+  function freezeMember(address _member) external;
+
+  /**
   @notice proxyMintDD is a protected function that allows an approved contract to mint DecentraDollar
   @param _to is the address the DecentraDollar is being minted to
   @param _amount is the amount being minted
@@ -99,4 +116,6 @@ interface IDecentraCore {
   @param _amount is the amount being burned
   */
   function proxyBurnDS(address _from, uint256 _amount) external;
+
+  function dScoreMod(address _add) external returns(bool);
 }

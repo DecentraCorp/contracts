@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 
@@ -14,12 +15,10 @@ import "./Power.sol";
  */
 contract BancorFormula is Power {
     using SafeMath for uint256;
-    string public version;
     uint32 public MAX_WEIGHT;
 
     constructor() public {
         MAX_WEIGHT = 1000000;
-        version = "0.3";
     }
 
     /**
