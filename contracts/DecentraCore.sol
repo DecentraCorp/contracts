@@ -68,7 +68,6 @@ contract DecentraCore is Ownable, IDecentraCore {
     @param target is the address that the call_data will be passed to as a function call
     @param timeCreated is a blockstamp of when a proposal was created
     @param voteWeights stores the current weight of all votes for a proposal
-    @param amount is used to store an ETH amount to be passed along with a function call
     @param executed is a bool representing whether or not a proposal has been executed
     @param proposalHash is an IPFS hash for a file representing a proposal
     @param call_data is a bytes representing a function call on the target contract
@@ -81,7 +80,6 @@ contract DecentraCore is Ownable, IDecentraCore {
         uint256 timeCreated;
         uint256 voteWeights;
         uint256 voteID;
-        uint256 amount;
         bool executed;
         bool proposalPassed;
         string proposalHash;
@@ -182,13 +180,11 @@ contract DecentraCore is Ownable, IDecentraCore {
     /**
     @notice newProposaln allows a user to create a proposal
     @param _target is the address this proposal is targeting
-    @param _amount is a value amount associated with the call
     @param _proposalHash is an IPFS hash of a file representing a proposal
     @param _calldata is a bytes representation of a function call
     **/
     function newProposal(
         address payable _target,
-        uint256 _amount,
         string memory _proposalHash,
         bytes memory _calldata
     ) public payable override onlyMember returns (uint256) {
@@ -196,10 +192,8 @@ contract DecentraCore is Ownable, IDecentraCore {
         Proposal storage p = proposals[proposalID];
         p.maker = msg.sender;
         p.target = _target;
-        p.amount = _amount;
         p.voteWeights = 0;
         p.voteID = 0;
-        p.amount = 0;
         p.timeCreated = block.timestamp;
         p.proposalHash = _proposalHash;
         p.call_data = _calldata;
@@ -436,5 +430,33 @@ contract DecentraCore is Ownable, IDecentraCore {
         onlyBurn
     {
         ds.burnStock(_from, _amount);
+    }
+
+    /**
+    @notice getProposal is used to retrieve proposal data
+    @param _id is the id of the proposal being retrieved
+    */
+    function getProposal(uint256 _id)
+        external
+        view
+        override
+        returns (
+            address maker,
+            address target,
+            uint256 voteWeights,
+            uint256 voteID,
+            uint256 timeCreated,
+            string memory proposalHash,
+            bytes memory call_data
+        )
+    {
+        Proposal storage p = proposals[_id];
+        maker = p.maker;
+        target = p.target;
+        voteWeights = p.voteWeights;
+        voteID = p.voteID;
+        timeCreated = p.timeCreated;
+        proposalHash = p.proposalHash;
+        call_data = p.call_data;
     }
 }

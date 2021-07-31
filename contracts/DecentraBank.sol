@@ -61,7 +61,7 @@ contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
         fractionalReserveValue = 2;
     }
 
-    function setUp() public onlyOwner {
+    function setUp() public payable onlyOwner {
         DC.proxyMintDD(address(this), 10000000000000000000000000000);
         uint256 dsValue = calculatePurchase(10000000000000000000000000000);
         DC.proxyMintDS(msg.sender, dsValue);
@@ -148,7 +148,7 @@ contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
   */
     function calculatePoolBal() public view override returns (uint256) {
         uint256 total;
-        for (uint256 i = 0; i <= collateralTypes.length; ++i) {
+        for (uint256 i = 0; i < collateralTypes.length; ++i) {
             if (collateralTypes[i] == address(0)) {
                 total = total.add(address(this).balance);
             } else {

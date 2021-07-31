@@ -39,13 +39,11 @@ interface IDecentraCore {
     /**
   @notice newProposaln allows a user to create a proposal
   @param _target is the address this proposal is targeting
-  @param _amount is a value amount associated with the call
   @param _proposalHash is an IPFS hash of a file representing a proposal
   @param _calldata is a bytes representation of a function call
   **/
     function newProposal(
         address payable _target,
-        uint256 _amount,
         string memory _proposalHash,
         bytes memory _calldata
     ) external payable returns (uint256);
@@ -118,5 +116,26 @@ interface IDecentraCore {
   */
     function proxyBurnDS(address _from, uint256 _amount) external;
 
+    /**
+  @notice dScoreMod is used to allow other contracts to call the dScoreMod mapping
+  @param _add is the address in question
+  */
     function dScoreMod(address _add) external returns (bool);
+
+    /**
+  @notice getProposal is used to retrieve proposal data
+  @param _id is the id of the proposal being retrieved
+  */
+    function getProposal(uint256 _id)
+        external
+        view
+        returns (
+            address maker,
+            address target,
+            uint256 voteWeights,
+            uint256 voteID,
+            uint256 timeCreated,
+            string memory proposalHash,
+            bytes memory call_data
+        );
 }

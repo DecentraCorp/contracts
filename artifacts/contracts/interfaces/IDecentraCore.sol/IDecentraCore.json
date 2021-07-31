@@ -150,14 +150,58 @@
     {
       "inputs": [
         {
-          "internalType": "address payable",
-          "name": "_target",
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getProposal",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "target",
           "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "_amount",
+          "name": "voteWeights",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "voteID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timeCreated",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "proposalHash",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "call_data",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_target",
+          "type": "address"
         },
         {
           "internalType": "string",

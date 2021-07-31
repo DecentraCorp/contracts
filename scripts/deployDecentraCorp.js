@@ -38,18 +38,27 @@ async function main() {
   dsAmount = 10000000000000000000000000000;
   ddAmount = 10000000000000000000000000000;
 
-  dScore.setDC(dCore);
+  await dScore.setDC(dCore);
   console.log("Set up DScore");
-  dDollar.transferOwnership(dCore);
-  dStock.transferOwnership(dCore);
-  dScore.transferOwnership(dCore);
-  dBank.transferOwnership(dCore);
+  await dDollar.transferOwnership(dCore);
+  await dStock.transferOwnership(dCore);
+  await dScore.transferOwnership(dCore);
+  await dBank.transferOwnership(dCore);
   console.log("Ownership transfered to DecentraCore");
-  dStock.transfer(dBank, dsAmount);
-  dDollar.transfer(dBank, ddAmount);
+  await dStock.transfer(dBank, dsAmount);
+  await dDollar.transfer(dBank, ddAmount);
   console.log("Money in the bank");
-  dBank.setUp();
+  await dBank.setUp();
   console.log("DecentraBank initialized");
+  await dCore.setApprovedContract(dCore.address, 1);
+  await dCore.setApprovedContract(dCore.address, 2);
+  await dCore.setApprovedContract(dBank.address, 1);
+  await dCore.setApprovedContract(dBank.address, 2);
+  await dCore.setApprovedContract(dScore.address, 1);
+  await dCore.setApprovedContract(dScore.address, 2);
+  await dCore.transferOwnership(dCore.address);
+  console.log("DecentraCore initialized");
+  console.log("DecentraCorp is live");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

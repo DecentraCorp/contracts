@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraBank.sol": {
-      "lastModificationDate": 1627709048333,
-      "contentHash": "da6468337921a64e4c42323f58d545d2",
+      "lastModificationDate": 1627720910988,
+      "contentHash": "651c3df99b6fbfca15ec307abb178669",
       "sourceName": "contracts/DecentraBank.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -258,8 +258,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/interfaces/IDecentraCore.sol": {
-      "lastModificationDate": 1627708426470,
-      "contentHash": "0dafa40362cc28edc0f0468119bfc9da",
+      "lastModificationDate": 1627717701957,
+      "contentHash": "fae02b3979f7fca37f839b0cc9b4836c",
       "sourceName": "contracts/interfaces/IDecentraCore.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -505,8 +505,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraCore.sol": {
-      "lastModificationDate": 1627708492047,
-      "contentHash": "1edbd1987febc57b719e41e1da3bd47a",
+      "lastModificationDate": 1627719588441,
+      "contentHash": "32ee7a25239519e586f80dc43b779598",
       "sourceName": "contracts/DecentraCore.sol",
       "solcConfig": {
         "version": "0.8.0",
