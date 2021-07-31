@@ -258,8 +258,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/interfaces/IDecentraCore.sol": {
-      "lastModificationDate": 1627717701957,
-      "contentHash": "fae02b3979f7fca37f839b0cc9b4836c",
+      "lastModificationDate": 1627725775599,
+      "contentHash": "cc42a80feae007671efa39c28b1471ec",
       "sourceName": "contracts/interfaces/IDecentraCore.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -430,8 +430,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DScore.sol": {
-      "lastModificationDate": 1627708255238,
-      "contentHash": "14a92edb45abd7d920f69a3c61732ed8",
+      "lastModificationDate": 1627725277684,
+      "contentHash": "f13b46730c83d0e91ff4f417e18496fa",
       "sourceName": "contracts/DScore.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -505,8 +505,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraCore.sol": {
-      "lastModificationDate": 1627719588441,
-      "contentHash": "32ee7a25239519e586f80dc43b779598",
+      "lastModificationDate": 1627725801831,
+      "contentHash": "04aaa6942441a3677dc68f20d7bb74e9",
       "sourceName": "contracts/DecentraCore.sol",
       "solcConfig": {
         "version": "0.8.0",

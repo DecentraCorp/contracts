@@ -28,10 +28,12 @@ describe("DecentraCore", function () {
   let dCore4;
   let dScore4;
 
-  let account1; // admin privledges
-  let account2; // organizastional privledges for org one
-  let account3; // artist privledges for org one
-  let account4; // no privledges
+  let account1;
+  let account2;
+  let account3;
+  let account4;
+
+  let val = ethers.utils.parseEther("1");
 
   before(async () => {
     const signers = await ethers.getSigners();
@@ -75,6 +77,7 @@ describe("DecentraCore", function () {
     console.log("DecentraBank initialized");
     dCore.setApprovedContract(dScore.address, 1);
     dCore.setApprovedContract(dScore.address, 2);
+    dCore.setApprovedContract(dScore.address, 3);
     dCore.setApprovedContract(dCore.address, 1);
     dCore.setApprovedContract(dCore.address, 2);
     dCore.transferOwnership(dCore.address);
@@ -103,7 +106,7 @@ describe("DecentraCore", function () {
   });
 
   it("Should allow a user to stake a membership", async function () {
-    await dScore.stakeMembership(100);
+    await dScore.stakeMembership(val);
     await expect(await dScore1.checkStaked(account1)).to.equal(true);
   });
 
@@ -125,17 +128,42 @@ describe("DecentraCore", function () {
           },
         ],
       },
-      [account2, 1000000]
+      [account2, val]
     );
 
     await dCore1.newProposal(
-      dScore.address,
+      dCore.address,
       "proposalHash",
       encodedProposalData
     );
 
     let prop = await dCore1.getProposal(1);
-    console.log(prop.proposalHash);
     expect(prop.proposalHash).to.equal("proposalHash");
+  });
+
+  it("Should allow a member to vote and a proposal to successfully fire minting DecentraDollar", async function () {
+    let encodedProposalData = await web3.eth.abi.encodeFunctionCall(
+      {
+        name: "proxyMintDD",
+        type: "function",
+        inputs: [
+          {
+            type: "address",
+            name: "to",
+          },
+          {
+            type: "uint256",
+            name: "_amount",
+          },
+        ],
+      },
+      [account2, val]
+    );
+    await dCore1.vote(1, true);
+    let prop = await dCore1.getProposal(1);
+    console.log(prop.executed);
+    expect(prop.executed).to.equal(true);
+    let bal = await dDollar2.balanceOf(account2);
+    expect(bal).to.equal(val);
   });
 });

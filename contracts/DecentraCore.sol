@@ -57,12 +57,6 @@ contract DecentraCore is Ownable, IDecentraCore {
     mapping(address => bool) public override dScoreMod;
 
     /**
-    @notice delegators is a mapping of official DecentraCorp contracts
-                that gives them elevated delegator privledges
-    */
-    mapping(address => bool) public delegators;
-
-    /**
     @notice Proposal struct stores proposal information
     @param maker is the address of the account that made the proposal
     @param target is the address that the call_data will be passed to as a function call
@@ -126,17 +120,6 @@ contract DecentraCore is Ownable, IDecentraCore {
         _;
     }
 
-    /**
-    @notice the modifier onlyApprovedDelegator requires that the function caller must be a approved delegator
-    **/
-    modifier onlyApprovedDelegator() {
-        require(
-            delegators[msg.sender],
-            "DecentraCore: Caller is not a delegator"
-        );
-        _;
-    }
-
     constructor(
         address _dDollar,
         address _dStock,
@@ -145,6 +128,7 @@ contract DecentraCore is Ownable, IDecentraCore {
         dd = IDecentraDollar(_dDollar);
         ds = IDecentraStock(_dStock);
         dScore = IDScore(_dScore);
+        proposalTime = 604800;
     }
 
     ///fallback function so this contract can receive ETH
@@ -157,7 +141,7 @@ contract DecentraCore is Ownable, IDecentraCore {
     function delegateFunctionCall(
         address payable _target,
         bytes memory call_data
-    ) public override onlyApprovedDelegator {
+    ) internal {
         (bool success, bytes memory data) = _target.call(call_data);
         require(success, "delegateFunctionCall Failed");
         emit FunctionCallDelegated(_target, data);
@@ -296,7 +280,7 @@ contract DecentraCore is Ownable, IDecentraCore {
     function executeProposal(uint256 _proposalID) internal {
         Proposal storage p = proposals[_proposalID];
 
-        if (block.timestamp.sub(p.timeCreated) >= proposalTime) {
+        if (block.timestamp >= p.timeCreated.add(proposalTime)) {
             // mark the proposal as executed and failed
             p.executed = true;
             p.proposalPassed = false;
@@ -322,7 +306,6 @@ contract DecentraCore is Ownable, IDecentraCore {
             //check if the yea votes outway the nay votes
             if (yea > nay) {
                 delegateFunctionCall(p.target, p.call_data);
-
                 ///mark the proposal as executed and passed
                 p.executed = true;
                 p.proposalPassed = true;
@@ -446,6 +429,7 @@ contract DecentraCore is Ownable, IDecentraCore {
             uint256 voteWeights,
             uint256 voteID,
             uint256 timeCreated,
+            bool executed,
             string memory proposalHash,
             bytes memory call_data
         )
@@ -456,6 +440,7 @@ contract DecentraCore is Ownable, IDecentraCore {
         voteWeights = p.voteWeights;
         voteID = p.voteID;
         timeCreated = p.timeCreated;
+        executed = p.executed;
         proposalHash = p.proposalHash;
         call_data = p.call_data;
     }

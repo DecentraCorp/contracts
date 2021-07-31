@@ -119,24 +119,6 @@
     {
       "inputs": [
         {
-          "internalType": "address payable",
-          "name": "_target",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "call_data",
-          "type": "bytes"
-        }
-      ],
-      "name": "delegateFunctionCall",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "_member",
           "type": "address"
@@ -181,6 +163,11 @@
           "internalType": "uint256",
           "name": "timeCreated",
           "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "executed",
+          "type": "bool"
         },
         {
           "internalType": "string",

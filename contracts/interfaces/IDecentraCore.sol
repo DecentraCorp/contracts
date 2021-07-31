@@ -18,17 +18,6 @@ interface IDecentraCore {
     event FunctionCallDelegated(address target, bytes call_data);
 
     /**
-  @notice delegateFunctionCall is a protected function that allows the DecentraCorp contract
-  to make arbitrary calls to other contracts
-  @param _target is the address of the target of the call
-  @param call_data is the packaged function call that will be fired if this proposal is successful
-  */
-    function delegateFunctionCall(
-        address payable _target,
-        bytes memory call_data
-    ) external;
-
-    /**
   @notice transferxDAI is used to easily transfer xDAI from the DecentraCorp contract
   @param _to is the address tokens are being minted to
   @param _amount is the amount of tokens being minted
@@ -135,6 +124,7 @@ interface IDecentraCore {
             uint256 voteWeights,
             uint256 voteID,
             uint256 timeCreated,
+            bool executed,
             string memory proposalHash,
             bytes memory call_data
         );

@@ -186,7 +186,9 @@ contract DScore is Ownable, IDScore {
             .add(dscore.audit)
             .add(dscore.staked);
 
-        baseScore = dscore.votes.add(dscore.level).add(dscore.jobs);
+        baseScore = baseScore.add(dscore.votes).add(dscore.level).add(
+            dscore.jobs
+        );
 
         return baseScore;
     }
@@ -209,6 +211,34 @@ contract DScore is Ownable, IDScore {
         } else {
             return false;
         }
+    }
+
+    /**
+    @notice getDscore returns a users DScore data
+    @param _member is the address of the member whos DScore is being retreived
+    */
+    function getDscore(address _member)
+        external
+        view
+        returns (
+            uint256 level,
+            uint256 jobs,
+            uint256 votes,
+            uint256 reputation,
+            uint256 staked,
+            uint256 verified,
+            uint256 audit
+        )
+    {
+        DScoreTracker storage dscore = members[_member];
+
+        level = dscore.level;
+        jobs = dscore.jobs;
+        votes = dscore.votes;
+        reputation = dscore.reputation;
+        staked = dscore.staked;
+        verified = dscore.verified;
+        audit = dscore.audit;
     }
 
     /**
