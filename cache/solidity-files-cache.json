@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraBank.sol": {
-      "lastModificationDate": 1626992072397,
-      "contentHash": "641b2820bc291f271507b0cc6a7b934e",
+      "lastModificationDate": 1627709048333,
+      "contentHash": "da6468337921a64e4c42323f58d545d2",
       "sourceName": "contracts/DecentraBank.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -258,8 +258,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/interfaces/IDecentraCore.sol": {
-      "lastModificationDate": 1626991714847,
-      "contentHash": "ffa6de72f1157971f326fac6d18ade31",
+      "lastModificationDate": 1627708426470,
+      "contentHash": "0dafa40362cc28edc0f0468119bfc9da",
       "sourceName": "contracts/interfaces/IDecentraCore.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -430,8 +430,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DScore.sol": {
-      "lastModificationDate": 1626991714795,
-      "contentHash": "26439b857c85aadf3923cc77259e9d77",
+      "lastModificationDate": 1627708255238,
+      "contentHash": "14a92edb45abd7d920f69a3c61732ed8",
       "sourceName": "contracts/DScore.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -505,8 +505,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraCore.sol": {
-      "lastModificationDate": 1626991917910,
-      "contentHash": "5dc4035047339c120904aae923e4c849",
+      "lastModificationDate": 1627708492047,
+      "contentHash": "1edbd1987febc57b719e41e1da3bd47a",
       "sourceName": "contracts/DecentraCore.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -547,8 +547,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraStock.sol": {
-      "lastModificationDate": 1626991714711,
-      "contentHash": "3aaa1e8ad629e1ab1b7188d9e963e76a",
+      "lastModificationDate": 1627708706486,
+      "contentHash": "aed73d4d0376f8c48ed73d613d1b0b90",
       "sourceName": "contracts/DecentraStock.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -660,8 +660,8 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraDollar.sol": {
-      "lastModificationDate": 1626991714703,
-      "contentHash": "99232e2f772c8ee4c8f7b37a05671f22",
+      "lastModificationDate": 1627708700062,
+      "contentHash": "164b2eae97a58df4e76eb8449715f561",
       "sourceName": "contracts/DecentraDollar.sol",
       "solcConfig": {
         "version": "0.8.0",

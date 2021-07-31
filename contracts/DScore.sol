@@ -18,12 +18,10 @@ contract DScore is Ownable, IDScore {
 
     ///stakedCounter is a tracker for the total number of DecentraStock staked
     uint256 public stakedCounter;
-
     /// @notice ds is the DecentraStock contract
     IDecentraStock public ds;
     /// @notice dc is the DecentraCore contract
     IDecentraCore public dc;
-
     ///@notice members tracks a members D-Score to their address
     mapping(address => DScoreTracker) public members;
 
@@ -37,6 +35,14 @@ contract DScore is Ownable, IDScore {
             "DecentraCore: Caller is not a DScore MOD"
         );
         _;
+    }
+
+    constructor(address _dStock) {
+        ds = IDecentraStock(_dStock);
+    }
+
+    function setDC(address _dCore) external onlyOwner {
+        dc = IDecentraCore(_dCore);
     }
 
     /**
@@ -166,14 +172,23 @@ contract DScore is Ownable, IDScore {
         returns (uint256)
     {
         DScoreTracker storage dscore = members[_member];
-        uint256 baseScore = dscore
-            .staked
+        uint256 bal = ds.balanceOf(_member);
+        uint256 ts = ds.totalSupply();
+        uint256 ratio = _balanceStake(bal, ts);
+        uint256 balancer;
+        if (ratio > 10) {
+            balancer = 10;
+        } else {
+            balancer = ratio;
+        }
+        uint256 baseScore = balancer
             .add(dscore.reputation)
             .add(dscore.audit)
-            .add(dscore.staked)
-            .add(dscore.votes);
-        uint256 multiplyer = dscore.level.add(dscore.jobs);
-        return baseScore.mul(multiplyer);
+            .add(dscore.staked);
+
+        baseScore = dscore.votes.add(dscore.level).add(dscore.jobs);
+
+        return baseScore;
     }
 
     /**
@@ -194,5 +209,22 @@ contract DScore is Ownable, IDScore {
         } else {
             return false;
         }
+    }
+
+    /**
+    @notice _balanceStake is an internal function used to calculate the ratio between a given numerator && denominator
+    @param _numerator is the numerator of the equation
+    @param _denominator is the denominator of the equation
+    **/
+    function _balanceStake(uint256 _numerator, uint256 _denominator)
+        internal
+        pure
+        returns (uint256 quotient)
+    {
+        // caution, check safe-to-multiply here
+        uint256 numerator = _numerator * 10**(2 + 1);
+        // with rounding of last digit
+        uint256 _quotient = ((numerator / _denominator) + 5) / 10;
+        return (_quotient);
     }
 }

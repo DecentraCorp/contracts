@@ -15,22 +15,16 @@ interface IDecentraCore {
 
     //  event NewApprovedContract(address, contract);
 
-    event FunctionCallDelegated(
-        address target,
-        uint256 amount,
-        bytes call_data
-    );
+    event FunctionCallDelegated(address target, bytes call_data);
 
     /**
   @notice delegateFunctionCall is a protected function that allows the DecentraCorp contract
   to make arbitrary calls to other contracts
   @param _target is the address of the target of the call
-  @param _amount is a value amount associated with the call
   @param call_data is the packaged function call that will be fired if this proposal is successful
   */
     function delegateFunctionCall(
         address payable _target,
-        uint256 _amount,
         bytes memory call_data
     ) external;
 

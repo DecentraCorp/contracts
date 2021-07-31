@@ -149,22 +149,20 @@ contract DecentraCore is Ownable, IDecentraCore {
         dScore = IDScore(_dScore);
     }
 
-    fallback() external payable {}
     ///fallback function so this contract can receive ETH
 
     /**
     @notice delegateFunctionCall allows the DecentraCore contract to make arbitrary calls to other contracts
     @param _target is the target address where the function will be called
-    @param _amount is an eth amount to be passed from this contract to the target contract
     @param call_data is a bytes representation of the function the Decentracorp contract is calling and its input paramters
     **/
     function delegateFunctionCall(
         address payable _target,
-        uint256 _amount,
         bytes memory call_data
     ) public override onlyApprovedDelegator {
         (bool success, bytes memory data) = _target.call(call_data);
         require(success, "delegateFunctionCall Failed");
+        emit FunctionCallDelegated(_target, data);
     }
 
     /**
@@ -278,7 +276,7 @@ contract DecentraCore is Ownable, IDecentraCore {
             p.voted[msg.sender] != true,
             "You Have already voted on this proposal"
         );
-        uint256 vw = ds.balanceOf(msg.sender);
+        uint256 vw = dScore.calculateVotingPower(msg.sender);
 
         p.voteID = p.voteID++;
         p.votes[p.voteID] = Vote({
@@ -329,7 +327,7 @@ contract DecentraCore is Ownable, IDecentraCore {
 
             //check if the yea votes outway the nay votes
             if (yea > nay) {
-                delegateFunctionCall(p.target, p.amount, p.call_data);
+                delegateFunctionCall(p.target, p.call_data);
 
                 ///mark the proposal as executed and passed
                 p.executed = true;

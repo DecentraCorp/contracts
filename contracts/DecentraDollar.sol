@@ -17,7 +17,7 @@ import "./interfaces/IDecentraDollar.sol";
 **/
 contract DecentraDollar is Ownable, ERC20, IDecentraDollar {
     constructor() ERC20("DecentraDollar", "D$") {
-        mintDD(msg.sender, 10000000000000000000000000000);
+        _mint(msg.sender, 10000000000000000000000000000);
     }
 
     /**

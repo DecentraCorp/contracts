@@ -14,12 +14,6 @@
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
           "internalType": "bytes",
           "name": "call_data",
           "type": "bytes"
@@ -128,11 +122,6 @@
           "internalType": "address payable",
           "name": "_target",
           "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
         },
         {
           "internalType": "bytes",

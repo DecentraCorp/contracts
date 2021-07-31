@@ -47,20 +47,23 @@ contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
         address _Ddollar,
         uint32 _connectorWeight,
         uint256 _refundRatio
-    ) payable {
+    ) {
         DD = IDecentraDollar(_Ddollar);
         DS = IDecentraStock(_Dstock);
         DC = IDecentraCore(_Dcore);
-        collateralTypes[0] = address(0);
-        collateralTypes[1] = address(DD);
+        collateralTypes.push(address(0));
+        collateralTypes.push(address(DD));
         collateralCount = 1;
         connectorWeight = _connectorWeight; //sets global reserve ratio
         refundRatio = _refundRatio; //sets global refund reserve ratio
         percent = 25;
         divisor = 10000;
         fractionalReserveValue = 2;
-        DC.proxyMintDD(address(this), msg.value);
-        uint256 dsValue = calculatePurchase(msg.value);
+    }
+
+    function setUp() public onlyOwner {
+        DC.proxyMintDD(address(this), 10000000000000000000000000000);
+        uint256 dsValue = calculatePurchase(10000000000000000000000000000);
         DC.proxyMintDS(msg.sender, dsValue);
     }
 
@@ -198,6 +201,7 @@ contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
             connectorWeight,
             _stockAmount
         );
+        valueReturned = valueReturned.mul(refundRatio).div(100);
         return valueReturned;
     }
 }

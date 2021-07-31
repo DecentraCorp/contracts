@@ -17,7 +17,7 @@ import "./interfaces/IDecentraStock.sol";
 **/
 contract DecentraStock is Ownable, ERC20, IDecentraStock {
     constructor() ERC20("DecentraStock", "DSK") {
-        issueStock(msg.sender, 10000000000000000000000000000);
+        _mint(msg.sender, 10000000000000000000000000000);
     }
 
     /**
