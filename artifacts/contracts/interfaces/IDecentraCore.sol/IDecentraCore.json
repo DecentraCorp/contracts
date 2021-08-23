@@ -27,21 +27,46 @@
       "inputs": [
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "contractAdd",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "privledge",
+          "type": "uint256"
+        }
+      ],
+      "name": "NewApprovedContract",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
           "internalType": "uint256",
           "name": "proposalId",
           "type": "uint256"
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "proposalAmount",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
         },
         {
           "indexed": false,
           "internalType": "address",
           "name": "target",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "propHash",
+          "type": "string"
         },
         {
           "indexed": false,
@@ -119,19 +144,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_member",
-          "type": "address"
-        }
-      ],
-      "name": "freezeMember",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint256",
           "name": "_id",
           "type": "uint256"
@@ -202,13 +214,7 @@
         }
       ],
       "name": "newProposal",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "stateMutability": "payable",
       "type": "function"
     },

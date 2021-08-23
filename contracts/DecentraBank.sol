@@ -53,7 +53,7 @@ contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
         DC = IDecentraCore(_Dcore);
         collateralTypes.push(address(0));
         collateralTypes.push(address(DD));
-        collateralCount = 1;
+        collateralCount = 2;
         connectorWeight = _connectorWeight; //sets global reserve ratio
         refundRatio = _refundRatio; //sets global refund reserve ratio
         percent = 25;
@@ -81,6 +81,10 @@ contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
         uint256 stockPurchased = calculatePurchase(_amount);
         uint256 value;
         if (_tokenType == 0) {
+            require(
+                _amount == msg.value,
+                "msg value doesnt match input amount"
+            );
             value = msg.value;
         } else {
             IERC20 token = IERC20(collateralTypes[_tokenType]);
@@ -100,10 +104,9 @@ contract DecentraBank is Ownable, BancorFormula, IDecentraBank {
   */
     function sellStock(uint256 _amount) external override {
         uint256 returnValue = calculateSale(_amount);
-        DC.proxyBurnDS(msg.sender, returnValue);
-        uint256 returnFraction = collateralTypes.length;
-        uint256 returnedAmount = returnValue.div(returnFraction);
-        for (uint256 i = 0; i <= collateralTypes.length; ++i) {
+        DC.proxyBurnDS(msg.sender, _amount);
+        uint256 returnedAmount = returnValue.div(collateralCount);
+        for (uint256 i = 0; i < collateralCount; ++i) {
             if (collateralTypes[i] == address(0)) {
                 payable(msg.sender).transfer(returnedAmount);
             } else {

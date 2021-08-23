@@ -120,7 +120,7 @@ describe("DecentraCore", function () {
         inputs: [
           {
             type: "address",
-            name: "to",
+            name: "_to",
           },
           {
             type: "uint256",
@@ -142,14 +142,25 @@ describe("DecentraCore", function () {
   });
 
   it("Should allow a member to vote and a proposal to successfully fire minting DecentraDollar", async function () {
+    await dCore1.vote(1, true);
+    let prop = await dCore1.getProposal(1);
+    console.log(prop.executed);
+    expect(prop.executed).to.equal(true);
+    let bal = await dDollar2.balanceOf(account2);
+    expect(bal).to.equal(val);
+  });
+
+  it("Should allows us to create a new proposal to proxy burn DecentraDollar from account2", async function () {
+    console.log("encoding proposal data");
+
     let encodedProposalData = await web3.eth.abi.encodeFunctionCall(
       {
-        name: "proxyMintDD",
+        name: "proxyBurnDD",
         type: "function",
         inputs: [
           {
             type: "address",
-            name: "to",
+            name: "_from",
           },
           {
             type: "uint256",
@@ -159,11 +170,21 @@ describe("DecentraCore", function () {
       },
       [account2, val]
     );
-    await dCore1.vote(1, true);
-    let prop = await dCore1.getProposal(1);
-    console.log(prop.executed);
-    expect(prop.executed).to.equal(true);
+
+    await dCore1.newProposal(
+      dCore.address,
+      "proposalHash",
+      encodedProposalData
+    );
+
+    let prop = await dCore1.getProposal(2);
+    expect(prop.proposalHash).to.equal("proposalHash");
+
+    await dCore1.vote(2, true);
+    let propAgain = await dCore1.getProposal(2);
+    console.log(propAgain.executed);
+    expect(propAgain.executed).to.equal(true);
     let bal = await dDollar2.balanceOf(account2);
-    expect(bal).to.equal(val);
+    expect(bal).to.equal(0);
   });
 });

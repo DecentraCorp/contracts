@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const provider = waffle.provider;
 
 describe("DecentraBank", function () {
   let dStock;
@@ -127,25 +128,41 @@ describe("DecentraBank", function () {
     dBank4 = await dBank.connect(signers[3]);
   });
 
-  it("Should allow account1 to purchase DecentraStock with xDAI", async function () {
-    console.log("this is firing");
+  it("Should allow account2 to purchase DecentraStock with xDAI", async function () {
     let val = ethers.utils.parseEther("1");
     let overrides = {
-      // To convert Ether to Wei:
-      value: val, // ether in this case MUST be a string
-
-      // Or you can use Wei directly if you have that:
-      // value: someBigNumber
-      // value: 1234   // Note that using JavaScript numbers requires they are less than Number.MAX_SAFE_INTEGER
-      // value: "1234567890"
-      // value: "0x1234"
-
-      // Or, promises are also supported:
-      // value: provider.getBalance(addr)
+      value: val,
     };
+    let xDAIbefore = await provider.getBalance(account2);
+    console.log("xDAI balance before: " + xDAIbefore);
+
     let balb4 = await dStock2.balanceOf(account2);
     await dBank2.purchaseStock(val, 0, overrides);
     let balAfter = await dStock2.balanceOf(account2);
     expect(balAfter).to.be.above(balb4);
+    console.log("DecentraStock balance: " + balAfter);
+  });
+
+  it("Should return 50% DAI 50% DecentraDollar for a DecentraStock sale", async function () {
+    let val = ethers.utils.parseEther("1");
+    let overrides = {
+      value: val,
+    };
+
+    let xDAIbefore = await provider.getBalance(account2);
+    console.log("xDAI balance before: " + xDAIbefore);
+    let ddBalb4 = await dDollar2.balanceOf(account2);
+    console.log("DecentraDollar balance before: " + ddBalb4);
+    let balDS = await dStock2.balanceOf(account2);
+    console.log("DecentraStock balance before: " + balDS);
+
+    await dBank2.sellStock(balDS);
+
+    let xDAIAfter = await provider.getBalance(account2);
+    console.log("xDAI balance after: " + xDAIAfter);
+    let ddBalAfter = await dDollar2.balanceOf(account2);
+    console.log("DecentraDollar balance after: " + ddBalAfter);
+    expect(xDAIAfter).to.be.above(xDAIbefore);
+    expect(ddBalAfter).to.be.above(ddBalb4);
   });
 });

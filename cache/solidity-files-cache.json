@@ -2,11 +2,11 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraBank.sol": {
-      "lastModificationDate": 1627720910988,
-      "contentHash": "651c3df99b6fbfca15ec307abb178669",
+      "lastModificationDate": 1628807954879,
+      "contentHash": "897aa7f0a3632cf44adb55069288b7ed",
       "sourceName": "contracts/DecentraBank.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -49,7 +49,7 @@
       "contentHash": "17d9f40220b0ab370db2c77e7c92c4ef",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -85,7 +85,7 @@
       "contentHash": "c7492a9ab60ba083d345f893d5e0f33c",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -119,7 +119,7 @@
       "contentHash": "9f282272a197e5e800ef035117e86f2f",
       "sourceName": "@openzeppelin/contracts/utils/math/SafeMath.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -153,7 +153,7 @@
       "contentHash": "e66d9dde4bd4ee25e4f2ab131ba66eb3",
       "sourceName": "contracts/utils/BancorFormula.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -190,7 +190,7 @@
       "contentHash": "14d8d255b801fa7f516784b53dd37656",
       "sourceName": "contracts/interfaces/IDecentraDollar.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -222,11 +222,11 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/interfaces/IDecentraStock.sol": {
-      "lastModificationDate": 1626988746709,
-      "contentHash": "f559fa2f6fcb98f8a7f2654dde7a7d23",
+      "lastModificationDate": 1629494195039,
+      "contentHash": "5765191b832e6b78c4d2cf07ab95f8d1",
       "sourceName": "contracts/interfaces/IDecentraStock.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -258,11 +258,11 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/interfaces/IDecentraCore.sol": {
-      "lastModificationDate": 1627725775599,
-      "contentHash": "cc42a80feae007671efa39c28b1471ec",
+      "lastModificationDate": 1629752130248,
+      "contentHash": "58295189fcc00c4448bd28c1016470db",
       "sourceName": "contracts/interfaces/IDecentraCore.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -296,7 +296,7 @@
       "contentHash": "1aad70dbb9dc9d08fdca96375a710724",
       "sourceName": "contracts/interfaces/IDecentraBank.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -332,7 +332,7 @@
       "contentHash": "bc047f55d4e6dcc5a9c7ee096f530312",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -366,7 +366,7 @@
       "contentHash": "c4ff05bcf04063dab1b9baa14a43d214",
       "sourceName": "contracts/utils/Power.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -400,7 +400,7 @@
       "contentHash": "d89b0e3d0199e843708d6e69ed2923eb",
       "sourceName": "contracts/interfaces/BancorFormulaI.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -434,7 +434,7 @@
       "contentHash": "f13b46730c83d0e91ff4f417e18496fa",
       "sourceName": "contracts/DScore.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -475,7 +475,7 @@
       "contentHash": "0967d00b1fb93fe3b373cad1122eb284",
       "sourceName": "contracts/interfaces/IDScore.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -505,11 +505,11 @@
       ]
     },
     "/home/stan36/repos/DecentraCorp/dc_contracts/contracts/DecentraCore.sol": {
-      "lastModificationDate": 1627725801831,
-      "contentHash": "04aaa6942441a3677dc68f20d7bb74e9",
+      "lastModificationDate": 1629752029577,
+      "contentHash": "44a68478127c0d046e40a84e089b73ba",
       "sourceName": "contracts/DecentraCore.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -551,7 +551,7 @@
       "contentHash": "aed73d4d0376f8c48ed73d613d1b0b90",
       "sourceName": "contracts/DecentraStock.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -590,7 +590,7 @@
       "contentHash": "715cc034a225c8fc445e2f4299111d75",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -628,7 +628,7 @@
       "contentHash": "aa1be06992a99bb7393b26a6af3c4dfb",
       "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,
@@ -664,7 +664,7 @@
       "contentHash": "164b2eae97a58df4e76eb8449715f561",
       "sourceName": "contracts/DecentraDollar.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.6",
         "settings": {
           "optimizer": {
             "enabled": false,

@@ -4,8 +4,9 @@ pragma solidity ^0.8.0;
 interface IDecentraCore {
     event NewProposal(
         uint256 proposalId,
-        uint256 proposalAmount,
+        address creator,
         address target,
+        string propHash,
         bytes call_data
     );
 
@@ -13,9 +14,9 @@ interface IDecentraCore {
 
     event ProposalApproved(uint256 proposalId, bool success);
 
-    //  event NewApprovedContract(address, contract);
-
     event FunctionCallDelegated(address target, bytes call_data);
+
+    event NewApprovedContract(address contractAdd, uint256 privledge);
 
     /**
   @notice transferxDAI is used to easily transfer xDAI from the DecentraCorp contract
@@ -35,17 +36,17 @@ interface IDecentraCore {
         address payable _target,
         string memory _proposalHash,
         bytes memory _calldata
-    ) external payable returns (uint256);
+    ) external payable;
 
     /**
-  @notice setQuorum allows the owner of the DAO(normally set as the the DAO itself) to change
+  @notice setQuorum allows the owner of DecentraCorp(this contract) to change
           the quorum used in voting
   @notice _quorum is the input quarum number being set
   **/
     function setQuorum(uint256 _quorum) external;
 
     /**
-  @notice the vote function allows a DAO member to vote on proposals made to the DAO
+  @notice the vote function allows a DecentraCorp member to vote on proposals made to the DecentraCore contract
   @param _ProposalID is the number ID associated with the particular proposal the user wishes to vote on
   @param  supportsProposal is a bool value(true or false) representing whether or not a member supports a proposal
                   -true if they do support the proposal
@@ -67,15 +68,6 @@ interface IDecentraCore {
   */
     function setApprovedContract(address _contract, uint256 _privledge)
         external;
-
-    /**
-  @notice freezeMember is a protected function used to allow for a DecentraCorp contract to freeze an account
-          in the case of suspected fraud
-  @param _member is the address of the member who is being frozen
-  @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
-  @dev this function can also be used to un-freeze an account
-  */
-    function freezeMember(address _member) external;
 
     /**
   @notice proxyMintDD is a protected function that allows an approved contract to mint DecentraDollar

@@ -171,7 +171,7 @@ contract DecentraCore is Ownable, IDecentraCore {
         address payable _target,
         string memory _proposalHash,
         bytes memory _calldata
-    ) public payable override onlyMember returns (uint256) {
+    ) public payable override onlyMember {
         proposalID++;
         Proposal storage p = proposals[proposalID];
         p.maker = msg.sender;
@@ -181,14 +181,20 @@ contract DecentraCore is Ownable, IDecentraCore {
         p.timeCreated = block.timestamp;
         p.proposalHash = _proposalHash;
         p.call_data = _calldata;
-        return proposalID;
+        emit NewProposal(
+            proposalID,
+            msg.sender,
+            _target,
+            _proposalHash,
+            _calldata
+        );
     }
 
     /**
-    @notice setQuorum allows the owner of the DAO(normally set as the the DAO itself) to change
-            the quorum used in voting
+    @notice setQuorum allows the owner of DecentraCorp(this contract) to change
+          the quorum used in voting
     @notice _quorum is the input quarum number being set
-    **/
+  **/
     function setQuorum(uint256 _quorum) public override onlyOwner {
         quorum = _quorum;
     }
@@ -270,6 +276,8 @@ contract DecentraCore is Ownable, IDecentraCore {
         if (met) {
             executeProposal(_ProposalID);
         }
+
+        emit NewVote(_ProposalID, msg.sender, supportsProposal);
     }
 
     /**
@@ -314,6 +322,8 @@ contract DecentraCore is Ownable, IDecentraCore {
                 p.executed = true;
                 p.proposalPassed = false;
             }
+
+            emit ProposalApproved(_proposalID, p.proposalPassed);
         }
     }
 
@@ -345,22 +355,8 @@ contract DecentraCore is Ownable, IDecentraCore {
         if (_privledge == 3) {
             dScoreMod[_contract] = true;
         }
-    }
 
-    /**
-    @notice freezeMember is a protected function used to allow for a DecentraCorp contract to freeze an account
-            in the case of suspected fraud
-    @param _member is the address of the member who is being frozen
-    @dev this function is intended to be called by the audit contracts of phase two and will not play an active role in phase one
-    @dev this function can also be used to un-freeze an account
-    */
-    function freezeMember(address _member) external override onlyOwner {
-        if (frozenAccounts[_member]) {
-            frozenAccounts[_member] = false;
-        } else {
-            frozenAccounts[_member] = true;
-            freezeFrame[_member] = block.timestamp;
-        }
+        emit NewApprovedContract(_contract, _privledge);
     }
 
     /**
